@@ -5,7 +5,7 @@
   <select id="checkID" resultType="int" parameterType="String">
     SELECT COUNT(id) as cnt
     FROM member
-    WHERE id=#{id}
+    WHERE id=#{id} 
   </select>
   
   <insert id="create" parameterType="dev.mvc.member.MemberVO">
