@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+ 
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="dev.mvc.songcate.SongcateDAOInter"> <!-- SB가 자동으로 구현하여 연동하는 interface -->
+  <insert id="create" parameterType="dev.mvc.songcate.SongcateVO">
+    INSERT INTO songcate(songcateno, genre, artist, cnt, seqno, visible, rdate) 
+    VALUES(songcate_seq.nextval, #{genre}, #{artist}, 0, #{seqno}, #{visible}, sysdate)
+  </insert>
+  
+  <!-- SQL -> CateVO 객체 레코드 수 만큼 생성 -> ArrayList<songcateVO> 객체 생성되어 CateDAOInter로 리턴  -->
+  <!-- <select id="list_all" resultType="dev.mvc.songcate.SongcateVO">
+    SELECT songcateno, genre, artist, cnt, seqno, visible, rdate 
+    FROM songcate 
+    ORDER BY songcateno ASC
+  </select> -->
+
+  <!-- SQL -> CateVO 객체 레코드 수 만큼 생성 -> ArrayList<cateVO> 객체 생성되어 CateDAOInter로 리턴  -->
+  <select id="read" resultType="dev.mvc.songcate.SongcateVO" parameterType="Integer">
+    SELECT songcateno, genre, artist, cnt, seqno, visible, rdate
+    FROM songcate 
+    WHERE songcateno=#{songcateno}
+  </select>
+  
+  <!-- 처리 결과: 처리된 레코드 갯수 -->
+  <update id="update" parameterType="dev.mvc.songcate.SongcateVO">
+    UPDATE songcate 
+    SET genre=#{genre}, artist=#{artist}, cnt=#{cnt}, seqno=#{seqno}, visible=#{visible}, rdate=sysdate 
+    WHERE songcateno=#{songcateno}
+  </update>  
+  
+  <delete id="delete" parameterType="int">
+    DELETE FROM songcate WHERE songcateno=#{songcateno}
+  </delete>
+  
+  <!-- 우선 순위 높임, 10 등 -> 1 등 -->
+  <update id="update_seqno_forward" parameterType="Integer">
+    UPDATE songcate SET seqno = seqno-1 WHERE songcateno=#{songcateno}
+  </update>
+  
+  <!-- 우선 순위 낮춤, 1 등 -> 10 등 -->
+  <update id="update_seqno_backward" parameterType="Integer">
+    UPDATE songcate SET seqno = seqno+1 WHERE songcateno=#{songcateno}
+  </update>
+  
+  <!-- 정렬 순서 변경 
+       SQL -> CateVO 객체 레코드 수 만큼 생성 -> ArrayList<cateVO> 객체 생성되어 CateDAOInter로 리턴  -->
+  <select id="list_all" resultType="dev.mvc.songcate.SongcateVO">
+    SELECT songcateno, genre, artist, cnt, seqno, visible, rdate
+    FROM songcate 
+    ORDER BY seqno ASC
+  </select>
+  
+  <!-- 카테고리 공개 설정 -->
+  <update id="update_visible_y" parameterType="Integer">
+    UPDATE songcate SET visible='Y' WHERE songcateno=#{songcateno}
+  </update>
+  
+  <!-- 카테고리 비공개 설정 -->
+  <update id="update_visible_n" parameterType="Integer">
+    UPDATE songcate SET visible='N' WHERE songcateno=#{songcateno}
+  </update>
+  
+  <!-- 숨긴 카테고리 그룹을 제외한 접속자에게 공개할 '카테고리 그룹' 출력 -->
+  <select id="list_all_songcategrp_y" resultType="dev.mvc.songcate.SongcateVO">
+    SELECT songcateno, genre, artist, cnt, seqno, visible, rdate
+    FROM songcate 
+    WHERE artist='--' AND visible='Y' 
+    ORDER BY seqno ASC
+  </select>
+  
+  <!-- 특정 장르에 속하면서, 숨긴 카테고리를 제외한 접속자에게 공개할 '카테고리' 출력 -->
+  <select id="list_all_songcate_y" resultType="dev.mvc.songcate.SongcateVO" parameterType="String">
+    SELECT songcateno, genre, artist, cnt, seqno, visible, rdate
+    FROM songcate 
+    WHERE artist!='--' AND genre=#{genre} AND visible='Y' 
+    ORDER BY seqno ASC
+  </select>
+  
+  <!-- 특정 장르에 속하면서,
+        숨긴 '카테고리를 제외하고 접속자에게 공개할 '카테고리' 출력 -->
+  <select id="genreset" resultType="String">
+    SELECT genre FROM songcate WHERE artist = '--' ORDER BY seqno ASC
+  </select>
+  
+  <!-- 정렬 순서 변경 
+       SQL -> CateVO 객체 레코드 수 만큼 생성 -> ArrayList<cateVO> 객체 생성되어 CateDAOInter로 리턴  -->
+  <select id="list_search" resultType="dev.mvc.songcate.SongcateVO" parameterType="String">
+    SELECT songcateno, genre, artist, cnt, seqno, visible, rdate
+    FROM songcate 
+    <if test="word != null and word != ''"> <!-- 검색 상태 WHERE 생성 -->
+    WHERE (UPPER(genre) LIKE '%' || UPPER(#{word}) || '%')
+        OR (UPPER(artist) LIKE '%' || UPPER(#{word}) || '%')
+    </if>
+    ORDER BY seqno ASC
+  </select>
+  
+  <!-- 검색 갯수 -->
+  <select id="list_search_count" resultType="Integer" parameterType="String">
+    SELECT COUNT(*) as cnt 
+    FROM songcate 
+    <if test="word != null and word != ''"> <!-- 검색 상태 WHERE 생성 -->
+    WHERE (UPPER(genre) LIKE '%' || UPPER(#{word}) || '%')
+        OR (UPPER(artist) LIKE '%' || UPPER(#{word}) || '%')
+    </if>
+    ORDER BY seqno ASC
+  </select>
+  
+  <!-- 검색 + 페이징  -->
+  <select id="list_search_paging" resultType="dev.mvc.songcate.SongcateVO" parameterType="Map">
+    SELECT songcateno, genre, artist, cnt, seqno, visible, rdate, r
+    FROM(
+        SELECT songcateno, genre, artist, cnt, seqno, visible, rdate, rownum as r
+        FROM(
+            SELECT songcateno, genre, artist, cnt, seqno, visible, rdate
+            FROM songcate
+            WHERE UPPER(genre) LIKE '%' || UPPER(#{word}) || '%' OR UPPER(artist) LIKE '%' || UPPER(#{word}) || '%'
+            ORDER BY seqno ASC
+        )
+    )
+    WHERE r &gt;= #{start_num} AND r &lt;= #{end_num}
+  </select>
+  
+  <!-- 자료수 산출 -->
+  <select id="cntcount" parameterType="int" resultType="int">
+    SELECT COUNT(*) 
+    FROM plist 
+    WHERE SONGCATENO = #{songcateno}
+  </select>
+  
+</mapper>
+
+
+
+
+
+
+
+
+
+

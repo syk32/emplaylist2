@@ -1,0 +1,62 @@
+<!-- /* 
+<div th:replace="~{cate/list_all_com::list_all_fragment}" 
+'/songcate/list_all_com.html' 파일의 list_all_fragment를 가져다 사용
+*/ -->  
+<div th:fragment="list_all_fragment">
+  <table class="table table-hover" style="width: 100%;">
+    <colgroup>
+      <col style='width: 5%;'/>  <!-- // 순서 -->
+      <col style='width: 7%;'/>  <!-- // 장르명 -->
+      <col style='width: 9%;'/>  <!-- // 가수 -->
+      <col style='width: 5%;'/>  <!-- // 자료수 -->
+      <col style='width: 8%;'/>  <!-- // 등록일 -->
+      <col style='width: 9%;'/>  <!-- // 기타 -->
+    </colgroup>
+    <thead>
+      <tr>
+        <th class="th_bs">순서</th>
+        <th class="th_bs">장르명</th>
+        <th class="th_bs">가수</th>
+        <th class="th_bs">자료수</th>
+        <th class="th_bs">등록일</th>
+        <th class="th_bs">기타</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr th:each="songcateVO, status:${list}">
+        <td class="td_bs" th:text="${no-status.index}"></td>
+        <td class="td_bs">
+          <a th:href="@{|/songcate/read/${songcateVO.songcateno}?word=${word}&now_page=${now_page}|}" style="display:block;" th:text="${songcateVO.genre}"></a>
+        </td>
+        <td class="td_bs">
+          <a th:href="@{|/songcate/read/${songcateVO.songcateno}?word=${word}&now_page=${now_page}|}" style="display:block;" th:text="${songcateVO.artist}"></a>
+        </td>
+        <td class="td_bs" th:text="${songcateVO.cnt}"></td>
+        <td class="td_bs" th:text="${songcateVO.rdate.substring(0, 10)}"></td>
+        <td class="td_bs">
+         <span th:text="${songcateVO.seqno}"></span>
+         <span th:if="${songcateVO.visible == 'Y'}">
+          <a th:href="@{|/songcate/update_visible_n/${songcateVO.songcateno}?word=${word}&now_page=${now_page}|}"><img src="/songcate/images/show.jpg" class="icon" title="출력">
+          </a>
+         </span>
+         <span th:if="${songcateVO.visible == 'N'}">
+          <a th:href="@{|/songcate/update_visible_y/${songcateVO.songcateno}?word=${word}&now_page=${now_page}|}"><img src="/songcate/images/hide.jpg" class="icon" title="숨김">
+          </a>
+         </span>
+         <a th:href="@{|/songcate/update_seqno_forward/${songcateVO.songcateno}?word=${word}&now_page=${now_page}|}"><img src="/songcate/images/palup.png" class="icon" title="우선순위 높임"></a>
+         <a th:href="@{|/songcate/update_seqno_backward/${songcateVO.songcateno}?word=${word}&now_page=${now_page}|}"><img src="/songcate/images/paldown.png" class="icon" title="우선순위 낮춤"></a>
+         <a th:href="@{|/songcate/update/${songcateVO.songcateno}?word=${word}&now_page=${now_page}|}"><img src="/songcate/images/update.jpg" class="icon" title="수정"></a> <!-- /static 기준 -->
+         <a th:href="@{|/songcate/delete/${songcateVO.songcateno}?word=${word}&now_page=${now_page}|}"><img src="/songcate/images/delete.png" class="icon" title="삭제"></a> <!--/* /static 기준 */-->
+         <a th:if="${songcateVO.artist != '--'}" th:href="@{/plist/create(songcateno=${songcateVO.songcateno})}"><img src="/songcate/images/create.jpg" class="icon" title="글 작성"></a>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  
+  <!-- 페이지 버튼 목록 출력 시작 -->
+  <div class="Bottom_menu" th:utext="${paging}"></div>
+  <!-- 페이지 버튼 목록 출력 종료 -->
+  
+</div>
+
+

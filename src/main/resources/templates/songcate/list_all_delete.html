@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html layout:decorate="~{layout}">
+  <div layout:fragment="content">
+    <div class="title_line">카테고리 및 자료 삭제</div>
+    <aside class="aside_right">
+      <a th:href="@{|/songcate/list_search?word=${word}|}">목록</a>
+      <span class="menu_divide">|</span>
+      <a th:href="@{|/songcate/update/${songcateVO.songcateno}?word=${word}|}">수정</a>
+      <span class="menu_divide">|</span>
+      <a th:href="@{|/songcate/list_search|}">등록</a>
+      <span class="menu_divide">|</span>
+      <a href="javascript: location.reload();">새로 고침</a>
+    </aside>
+    
+    <!-- '/cate/list_search_com.html' 파일의 list_search_fragment를 가져다 사용 -->
+    <div th:replace="~{songcate/list_search_com::list_search_fragment}"></div> 
+    
+    <div class="menu_line"></div>
+    
+    <div style="width: 50%; margin: 0px auto;">  
+      <form name="frm" method="post" action="/songcate/delete_all_confirm" style="text-align: center;" th:object="${songcateVO}">
+        <input type="hidden" name="songcateno" th:value="${songcateVO.songcateno}"> <!-- 값 유지 -->
+        <input type="hidden" name="word" th:value="${word}"> <!-- 값 유지 -->
+        <input type="hidden" name="now_page" th:value="${now_page}"> <!-- 값 유지 -->
+  
+        <div class="msg_warning">
+          해당 카테고리에 포함된 자료가 <span th:text="${cnt}"></span>개 있습니다.<br>
+          관련 자료와 카테고리를 모두 삭제하겠습니까?
+        </div>
+        <div style="width: 60%; margin: 0px auto; background-color: #DDDDDD;">
+          <label>음악 장르</label>: <span th:text="${songcateVO.genre}"></span><br>
+          <label>가수</label>: <span th:text="${songcateVO.artist}"></span>
+            <a th:href="@{|http://192.168.12.166:9092/plist/list_by_songcateno?songcateno=${songcateVO.songcateno}|}">
+              <img th:src="@{/songcate/images/go.png}" alt="Go" style="cursor: pointer; width: 35px; height: auto;">
+            </a><br>
+        </div>
+          
+        <div class="content_body_bottom">
+          <button type="submit" class="btn btn-secondary btn-sm">모두 삭제</button>
+          <button type="button" onclick="location.href='/songcate/list_search'" class="btn btn-secondary btn-sm">취소</button>
+        </div>
+      </form>
+      <div th:replace="~{songcate/list_all_com::list_all_fragment}"></div> 
+    </div>
+  </div>
+</html>

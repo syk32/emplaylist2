@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+
+<html layout:decorate="~{layout}"> <!-- layout.html 상속-->
+<div layout:fragment="content">
+  <div class="title_line">노래 삭제</div>
+  <aside class="aside_right">
+  <a th:href="@{|/songcate/list_search?word=${word}|}">목록</a>
+  <span class="menu_divide">|</span>
+  <a th:href="@{|/songcate/update/${songcateVO.songcateno}?word=${word}|}">수정</a>
+  <span class="menu_divide">|</span>
+  <a th:href="@{|/songcate/list_search|}">등록</a>
+  <span class="menu_divide">|</span>
+  <a href="javascript: location.reload();">새로 고침</a>
+  </aside>
+  
+  <!--/* '/songcate/list_search_com.html' 파일의 list_search_fragment를 가져다 사용 */--> 
+  <div th:replace="~{songcate/list_search_com::list_search_fragment}"></div>
+  
+  <div class="menu_line"></div>
+  
+  <div style="width: 50%; margin: 0px auto;">  
+    <form name="frm" method="post" action="/songcate/delete" th:object="${songcateVO}">
+      <input type="hidden" name="songcateno" value="" th:value="${songcateVO.songcateno}"> <!--/* 값 유지 */-->
+      <input type="hidden" name="word" th:value="${word}"> <!--/* 값 유지 */-->
+      <input type="hidden" name="now_page" th:value="${now_page}">
+
+      <div class="msg_warning">
+        노래를 삭제하면 복구 할 수 없습니다.<br>삭제하시려면 [삭제] 버튼을 클릭하세요.
+      </div>
+      <div style="width: 60%; margin: 0px auto; background-color: #DDDDDD;">
+        <label>장르</label>: <span th:text="${songcateVO.genre}"></span><br>
+        <label>가수</label>: <span th:text="${songcateVO.artist}"></span><br>
+      </div> 
+
+      <div class="content_body_bottom">
+        <button type="submit" class="btn btn-secondary btn-sm">삭제</button>
+        <button type="button" onclick="location.href='/songcate/list_search'" class="btn btn-secondary btn-sm">목록</button>
+      </div>
+      
+    </form>  
+  </div>
+  
+  <div th:replace="~{songcate/list_all_com::list_all_fragment}"></div>
+</div>
+</html>
+
