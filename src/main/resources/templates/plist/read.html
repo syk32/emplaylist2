@@ -2,6 +2,63 @@
 
 <html layout:decorate="~{layout}"> <!-- layout.html 상속-->
 <div layout:fragment="content">
+    <script>
+    window.onload = function() {
+      // <img src="/notice/images/like.png" style="width: 22px;" title="추천">
+      // <img src="/notice/images/nope.png" style="width: 22px;" title="비추천">
+      // 현재 로그인한 사용자의 추천 여부 반영
+      
+      let heartCnt = '[[${heartCnt}]]'; //  javascript -> Thymeleaf -> session
+      let tag = '';
+      console.log('heartCnt:', heartCnt);
+      
+      if (heartCnt == 1) {
+        tag = '<a href="javascript:good([[${plistVO.plistno}]])"><img src="/plistgood/images/good.png" style="width: 22px" title="추천"></a>';
+        document.querySelector('#heart_panel').innerHTML = tag;
+      } else {
+        tag = '<a href="javascript:good([[${plistVO.plistno}]])"><img src="/plistgood/images/bad.png" style="width: 22px" title="비추천"></a>';
+        document.querySelector('#heart_panel').innerHTML = tag;
+      }
+
+      document.querySelector('#goodcnt_panel').innerHTML = '([[${plistVO.recom}]])';
+    }
+    
+    function good(plistno) {
+      console.log('-> plistno: ' + plistno);
+
+      fetch("/plist/good", {
+        "method": "post",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({plistno}) 
+      })
+      .then((response) => response.json()) // 응답 문자열 추출
+      .then((data) => {
+        console.log('-> data.isMember: ' + data.isMember);
+
+        if (data.isMember == 1) { // 회원
+          let heartCnt = data.heartCnt; //  javascript -> Thymeleaf -> session
+          let tag = '';
+          
+          if (heartCnt == 1) {
+            tag = '<a href="javascript:good([[${plistVO.plistno}]])"><img src="/plist/images/good.png" style="width: 22px" title="추천"></a>';
+            document.querySelector('#heart_panel').innerHTML = tag;
+          } else {
+            tag = '<a href="javascript:good([[${plistVO.plistno}]])"><img src="/plist/images/bad.png" style="width: 22px" title="비추천"></a>';
+            document.querySelector('#heart_panel').innerHTML = tag;
+          }
+    
+          document.querySelector('#goodcnt_panel').innerHTML = '(' + data.goodcnt + ')';
+
+        } else { // 비회원
+          alert("로그인해야 추천 할 수 있습니다.");
+          location.href='/member/login_cookie_need';
+        }
+      });
+    }
+  </script>
+
   <div class='title_line'>
     <span th:text="${songcateVO.genre }" class="title_line_text"></span > 
     > <span th:text="${songcateVO.artist}" class="title_line_text"></span > 
@@ -73,7 +130,7 @@
       
       <li class="li_none" th:text="|검색어(키워드): ${plistVO.word }|">
       </li>
-      
+      <span id="heart_panel"></span><span id="goodcnt_panel"></span>
       <li class="li_none" th:if="${plistVO.size1 > 0}">
         <div >
           <!-- ServletRegister.java: registrationBean.addUrlMappings("/download"); -->

@@ -182,7 +182,7 @@ COMMIT;
 
 INSERT INTO member(memberno, id, passwd, mname, tel, zipcode,
                                 address1, address2, mdate, grade)
-VALUES (member_seq.nextval, 'admin', 'fS/kjO+fuEKk06Zl7VYMhg==', '통합 관리자', '000-0000-0000', '12345',
+VALUES (member_seq.nextval, 'admin', 'fS/kjO+fuEKk06Zl7VYMhg==', '관리자', '000-0000-0000', '12345',
              '서울시 종로구', '관철동', sysdate, 1);
 
 COMMIT;
@@ -190,3 +190,5 @@ COMMIT;
 SELECT memberno, id, passwd, mname, tel, zipcode, address1, address2, mdate, grade
 FROM member
 ORDER BY grade ASC, id ASC;
+
+ALTER USER sysy IDENTIFIED BY 0226;

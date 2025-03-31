@@ -1,0 +1,59 @@
+
+<div th:replace="~{plistgood/list_search_com::list_search_fragment}"></div>
+
+<div class='menu_line'></div>
+
+<div th:fragment="list_all_fragment"> 
+  <table class="table table-hover" style="width: 100%;">
+    <colgroup>
+      <col style='width: 5%;'/>
+      <col style='width: 15%;'/>
+      <col style='width: 20%;'/>    
+      <col style='width: 10%;'/>
+      <col style='width: 15%;'/>
+      <col style='width: 15%;'/>
+      <col style='width: 10%;'/>
+    </colgroup>
+    <thead>
+      <tr>
+        <th class="th_bs">순서</th>
+        <th class="th_bs">등록일</th>
+        <th class="th_bs">게시글 번호</th>
+        <th class="th_bs">게시글 제목</th>
+        <th class="th_bs">회원 번호</th>
+        <th class="th_bs">회원 아이디</th>
+        <th class="th_bs">회원 이메일</th>
+        <th class="th_bs">기타</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr th:each="PlistgoodMemberVO, status:${list}">
+        <td class="td_bs" th:text="|${status.index+1}|"></td>
+        <td class="td_bs" th:text="${PlistgoodMemberVO.rdate.substring(0, 10)}"></td>
+        <td class="td_bs" th:text="${PlistgoodMemberVO.plistno}"></td>
+        <td class="td_bs" th:text="${PlistgoodMemberVO.p_title}"></td>
+        <td class="td_bs" th:text="${PlistgoodMemberVO.memberno}"></td>
+        <td class="td_bs" th:text="${PlistgoodMemberVO.id}"></td>
+        <td class="td_bs" th:text="${PlistgoodMemberVO.mname}"></td>
+        <td class="td_bs">
+          <a href="#" th:onclick="'delete_good(event, ' + ${PlistgoodMemberVO.goodno} + ');'"><img src="/plistgood/images/delete3.png" class="icon" title="삭제"></a>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <script>
+    function delete_good(e, goodno) {
+      let sw = confirm(goodno + '번 글 삭제를 하시겠습니까?\n삭제하면 복구 할 수 없습니다.');
+      if (sw == true) {
+        document.querySelector('#goodno').value = goodno;
+        document.querySelector('#frm').submit();
+      }
+    }
+  </script>
+  <form name="frm" id="frm" method="post" action="/plistgood/delete">
+    <input type="hidden" name="goodno" id="goodno">
+  </form>
+  
+  <div class="bottom_menu" th:utext="${paging}"></div>
+  
+</div>
