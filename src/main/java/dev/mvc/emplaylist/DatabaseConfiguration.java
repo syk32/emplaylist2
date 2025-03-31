@@ -18,7 +18,10 @@ import com.zaxxer.hikari.HikariDataSource;
 
 @Configuration // Spring Boot 환경 설정 파일임으로 읽어들여 설정 할 것
 @PropertySource("classpath:/application.properties")  // 설정 파일 위치
-@MapperScan(basePackages= {"dev.mvc.songcate", "dev.mvc.member" , "dev.mvc.plist"})  // DAO interface 패키지 등록
+@MapperScan(basePackages= {"dev.mvc.songcate", 
+                            "dev.mvc.member" , 
+                            "dev.mvc.plist", 
+                            "dev.mvc.plistgood",})  // DAO interface 패키지 등록
 public class DatabaseConfiguration {
     
     @Autowired

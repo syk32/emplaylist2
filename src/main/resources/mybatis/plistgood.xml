@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+ 
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="dev.mvc.plistgood.PlistgoodDAOInter">
+
+  <!-- 등록 -->
+  <insert id="create" parameterType="dev.mvc.plistgood.PlistgoodVO">
+    INSERT INTO plistgood(goodno, plistno, memberno, rdate)
+    VALUES (plistgood_seq.nextval, #{plistno}, #{memberno}, sysdate)
+  </insert>
+  
+  <!-- 목록 -->
+  <select id="list_all" parameterType="dev.mvc.plistgood.PlistgoodVO">
+    SELECT goodno, plistno, memberno, rdate
+    FROM plistgood
+    ORDER BY goodno DESC
+  </select>
+  
+    <!-- 삭제 -->
+  <delete id="delete" parameterType="int">
+    DELETE FROM plistgood
+    WHERE goodno = #{goodno}
+  </delete>
+
+  <!-- 특정 컨텐츠의 특정 회원 추천 개수 산출 -->
+  <select id="heartCnt" resultType="int" parameterType="HashMap">
+    SELECT COUNT (*) as cnt
+    FROM plistgood
+    WHERE plistno = #{plistno} AND memberno = #{memberno}
+  </select>
+  
+  <!-- PK 조회 -->
+  <select id="read" resultType="dev.mvc.plistgood.PlistgoodVO" parameterType="int">
+    SELECT goodno, plistno, memberno, rdate
+    FROM plistgood
+    ORDER BY goodno = #{goodno}
+  </select>
+  
+  <!-- plistno, memberno로 조회! -->
+  <select id="readByplistmember" resultType="dev.mvc.plistgood.PlistgoodVO" parameterType="HashMap">
+    SELECT goodno, plistno, memberno, rdate
+    FROM plistgood
+    WHERE plistno = #{plistno} AND memberno = #{memberno}
+  </select>
+  
+    <!-- 3개 조인 목록 -->
+  <select id="list_all_join" parameterType="dev.mvc.plistgood.PlistgoodMemberVO">
+    SELECT g.goodno, g.rdate, g.plistno, p.title as p_title, g.memberno, m.id, m.mname
+    FROM plist p, plistgood g, member m
+    WHERE p.plistno = g.plistno AND g.memberno = m.memberno
+    ORDER BY goodno DESC 
+  </select>
+  
+  <!-- 검색 개수 -->
+  <select id="count_search" resultType="int" parameterType="Map">
+    SELECT COUNT(*) AS cnt
+    FROM plistgood g
+    JOIN plist p ON g.plistno = p.plistno
+    JOIN member m ON g.memberno = m.memberno
+    <where>
+      <if test="word != null and word != ''">
+        UPPER(m.id) LIKE '%' || UPPER(#{word}) || '%' 
+        OR UPPER(p.title) LIKE '%' || UPPER(#{word}) || '%'
+        OR UPPER(m.mname) LIKE '%' || UPPER(#{word}) || '%'
+      </if>
+    </where>
+  </select>
+  
+  <!-- 검색 + 페이징 -->
+  <select id="list_search_paging" resultType="dev.mvc.plistgood.PlistgoodMemberVO" parameterType="Map">
+    SELECT *
+    FROM (
+        SELECT 
+            g.goodno, 
+            g.plistno, 
+            g.memberno, 
+            g.rdate, 
+            p.title AS p_title, 
+            m.id AS id, 
+            m.mname AS mname, 
+            ROW_NUMBER() OVER (ORDER BY g.goodno ASC) AS r
+        FROM plistgood g
+        JOIN plist p ON g.plistno = p.plistno
+        JOIN member m ON g.memberno = m.memberno
+        <where>
+          <if test="word != null and word != ''">
+            UPPER(m.id) LIKE '%' || UPPER(#{word}) || '%'  
+                  OR UPPER(p.title) LIKE '%' || UPPER(#{word}) || '%'
+                  OR UPPER(g.plistno) LIKE '%' || UPPER(#{word}) || '%'
+                  OR UPPER(m.mname) LIKE '%' || UPPER(#{word}) || '%'
+          </if>
+        </where>
+    )
+    WHERE r BETWEEN #{start_row} AND #{end_row}
+  </select>
+  
+</mapper>
